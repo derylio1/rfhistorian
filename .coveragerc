@@ -1,0 +1,25 @@
+[run]
+dynamic_context = test_function
+source = 
+    core/views/
+    core/forms.py
+    core/models.py
+    templates/
+omit =
+    */migrations/*
+    */tests/test*.py
+    */tests/*/test*.py
+plugins =
+    django_coverage_plugin
+
+[report]
+skip_empty = False
+skip_covered = False
+sort = Cover
+precision = 2
+
+[html]
+directory = htmlcov
+
+[django_coverage_plugin]
+template_extensions = html, txt, tex, email
