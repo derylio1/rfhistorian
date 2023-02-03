@@ -113,15 +113,21 @@ api/projects/<uuid:project_uuid>/execution/<uuid:execution_uuid>/tests
 POST data = 
 
 {
-    "test_name": [
+    "test_name": 
         "This field is required. - <string>"
-    ],
-    "test_status": [
+    ,
+    "test_status": 
         "This field is required. - <string:["PASS|FAIL|SKIP"]>"
-    ],
-    "test_time": [
+    ,
+    "test_time": 
         "This field is required. - <float>"
-    ]
+    ,
+    "error_message": 
+        "This field is not required. - <string>"
+    
+    "tag":  
+        "This field is not required. - <list:stings>"
+    }
 }
 
 ```
