@@ -131,3 +131,13 @@ POST data =
 }
 
 ```
+
+## Uploading results using scripts
+
+In "tools" directory contains rfhistorian.py script capable to parse robot framework output.xml file and upload it to the rfhistorian server.
+
+Example usage
+
+```sh
+python rfhistorian.py --username admin --password admin --project "project name" --version "0.0.1"
+```
