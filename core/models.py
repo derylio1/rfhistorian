@@ -24,7 +24,7 @@ class Project(models.Model):
     date_start = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    recent_execution_date = models.DateTimeField(auto_now=True)
+    recent_execution_date = models.DateTimeField(auto_now=False, blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('projects:list')
@@ -91,7 +91,7 @@ class Tag(models.Model):
 class TestCaseObject(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    name = models.CharField(max_length=1024, verbose_name='test case name')
+    name = models.CharField(max_length=200, verbose_name='test case name')
 
 class SingleTestResult(models.Model):
     RESULT_STATUS = (
@@ -99,14 +99,14 @@ class SingleTestResult(models.Model):
         ('FAIL', "FAIL"),
         ('SKIP', "SKIP"),
     )
-    #Test_Id, Execution_Id, Test_Name, Test_Status, Test_Time, Test_Error, Test_Tag
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     suite_execution = models.ForeignKey(SingleExecution, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, name='test_name')
     status = models.CharField(max_length=4, choices=RESULT_STATUS, name='test_status')
-    test_time = models.FloatField(verbose_name="execution time")
+    test_time = models.FloatField(name="execution_time")
     error_message = models.CharField(max_length=1024, name='error_message', blank=True, null=True)
     tag = models.ManyToManyField(Tag, blank=True,null=True, default=None)
+    test = models.ForeignKey(TestCaseObject, on_delete=models.SET_NULL, blank=True, null=True)
 
     def get_comments(self):
         return Comment.objects.filter(test=self)
@@ -126,6 +126,10 @@ class SingleTestResult(models.Model):
     
     def get_tag_data(self):
         return self.tag.all()
+
+    def get_test_statistic_url(self):
+        return reverse('projects:statistics:details', kwargs={'slug':self.suite_execution.project.slug,
+                                                              'test_uuid':self.test.uuid})
 
 class SingleSuiteResult(models.Model):
     RESULT_STATUS = (

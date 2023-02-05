@@ -231,11 +231,12 @@ def add_test_results(session, host, project_uuid, execution_uuid, test, status, 
     payload = {
     "test_name": test,
     "test_status": status,
-    "test_time": duration,
+    "execution_time": duration,
     "error_message": msg,
     "tag": dict_tags
     }
     res = session.post(f'http://{host}/api/projects/{project_uuid}/execution/{execution_uuid}/tests', json=payload)
+    print(res.content)
     if not res.status_code == 201:
         raise Exception(f"Unexpected error, server returned status code {res.status_code}", res.content)
 

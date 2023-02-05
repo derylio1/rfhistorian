@@ -31,21 +31,21 @@ class ProjectDetail(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        _suits = SingleExecution.objects.filter(project__uuid=self.object.uuid)
-        _versions = ', '.join(['"'+suite.version+'"'    for suite in _suits])
-        _passed =  ', '.join([str(suite.tests_passed)   for suite in _suits])
-        _failed =  ', '.join([str(suite.tests_failed)   for suite in _suits])
-        _skipped =  ', '.join([str(suite.tests_skipped) for suite in _suits])
-        _time =  ', '.join([str(suite.total_time)       for suite in _suits])
-        _total = ', '.join([str(suite.test_total)       for suite in _suits])
-        print(_versions)
-        ctx['suites'] = _suits
-        ctx['version'] = _versions
-        ctx['passed'] = _passed
-        ctx['failed'] = _failed
-        ctx['skipped'] = _skipped
-        ctx['time'] = _time
-        ctx['test_total'] = _total
+        suits = SingleExecution.objects.filter(project__uuid=self.object.uuid)
+        versions = ', '.join(['"'+suite.version+'"'    for suite in suits])
+        passed =  ', '.join([str(suite.tests_passed)   for suite in suits])
+        failed =  ', '.join([str(suite.tests_failed)   for suite in suits])
+        skipped =  ', '.join([str(suite.tests_skipped) for suite in suits])
+        time =  ', '.join([str(suite.total_time)       for suite in suits])
+        total = ', '.join([str(suite.test_total)       for suite in suits])
+        print(versions)
+        ctx['suites'] = suits
+        ctx['version'] = versions
+        ctx['passed'] = passed
+        ctx['failed'] = failed
+        ctx['skipped'] = skipped
+        ctx['time'] = time
+        ctx['test_total'] = total
         ctx['project_page'] = 'active'
         return ctx
 

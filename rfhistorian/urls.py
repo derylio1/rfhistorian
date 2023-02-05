@@ -19,6 +19,7 @@ from django.contrib.auth import views
 from core.views.project import ProjectList, ProjectCreate, ProjectDetail
 from core.views.suites import SuitesExecutionList, SuiteExecutionDetails
 from core.views.profile import ProfileList, ProfiletDetail, ProfileUpdate
+from core.views.test_statistic import TestStatisticDetails
 from core.views.register import RegisterUser
 from core.views.comment import CommentCreate
 from core.views.dashboard import Dashboard
@@ -30,6 +31,8 @@ result_api = [#SuiteExecutionAPI
     path('<uuid:suite_execution>/tests', TesteExecutionAPI.as_view(), name='tests'),
     path('<uuid:suite_execution>/suites', SuiteExecutionAPI.as_view(), name='suites'),
 ]
+
+
 
 suite_execution_api_urls = [
     path('<uuid:project_uuid>/execution', SingleExecutionAPI.as_view(), name='list'),
@@ -50,12 +53,16 @@ execution_urls = [
     path('<uuid:execution_uuid>/details', SuiteExecutionDetails.as_view(), name='details'),
     path('<uuid:execution_uuid>/test/<uuid:test_uuid>/', include((test_comments_urls, 'comments'))),
 ]
+test_statistics = [
+    path('<uuid:test_uuid>', TestStatisticDetails.as_view(), name='details'),
+]
 
 project_urls = [
     path('', ProjectList.as_view(), name='list'),
     path('create', ProjectCreate.as_view(), name='create'),
     path('<slug:slug>', ProjectDetail.as_view(), name='detail'),
     path('<slug:slug>/executions/', include((execution_urls, 'executions'))),
+    path('<slug:slug>/statistics/', include((test_statistics, 'statistics'))),
 ]
 
 profile_urls = [

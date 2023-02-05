@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<style>
+    #chart-container {
+  position: relative;
+  height: 30vh;
+  overflow: hidden;
+}
+</style>
+<div class="row">
+  <div class="col-12 mt-4">
+    <div class="card mb-4">
+        <div class="card-header pb-0 p-3">
+            <h3 class="mb-1">{{object.name}}</h3>
+            <p class="text-sm">statistics
+            </p>
+        </div>
+        <div class="row">
+          <div class="card-body pb-0 p-3">
+            <div id="chart-container"></div>
+              <script src="https://fastly.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
+            
+          </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12 mt-4">
+      <div class="card mb-4">
+      <div class="card-header pb-0">
+        <h6>{{ object.name }}</h6>
+      </div>
+      <div class="card-body px-0 pt-0 pb-2">
+        <div class="table-responsive p-0">
+          <table class="table align-items-center justify-content-center mb-0">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Execution version</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Execution time</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Error message</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">comments</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tags</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for test in test_execution %}
+              <tr>
+                <td>
+                  <div class="d-flex px-2">
+                    <div class="my-auto">
+                      <h6 class="mb-0 text-sm">{{ test.test_name }}</h6>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  {% if test.test_status == "PASS"%}
+                  <span class="badge badge-sm bg-gradient-success">{{ test.test_status }}</span>
+                  {% elif test.test_status == "FAIL"%}
+                  <span class="badge badge-sm bg-gradient-danger">{{ test.test_status }}</span>
+                  {% elif test.test_status == "SKIP"%}
+                  <span class="badge badge-sm bg-gradient-warning">{{ test.test_status }}</span>
+                  {% endif%}
+                </td>
+                <td class="align-middle text-center">
+                  <div class="d-flex align-items-center justify-content-center w-30">
+                    <span class="me-2 text-xs font-weight-bold">{{ test.execution_time }} s</span>
+                  </div>
+                </td>
+                <td class="align-middle text-center">
+                  <div class="d-flex align-items-center justify-content-center w-30">
+                      {% if test.error_message %}
+                      <span class="me-2 text-xs font-weight-bold">{{ test.error_message }}</span>
+                      {% endif %}
+                  </div>
+                </td>
+                <td class="align-middle text-center">
+                  <div class="d-flex align-items-center justify-content-center w-30">
+                      {% if test.get_comments %}
+                      <span class="me-2 text-xs font-weight-bold">{{ test.get_comments_count }}</span>
+                      <li class="nav-item dropdown pe-2 d-flex align-items-center">
+                        <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="ni ni-chat-round cursor-pointer" aria-hidden="true"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton" data-bs-popper="static">
+                          {% for comment in test.get_comments %}
+                          <li class="mb-2">
+                            <a class="dropdown-item border-radius-md" href="javascript:;">
+                              <div class="d-flex py-1">
+                                <div class="d-flex flex-column justify-content-center">
+                                  <h6 class="text-sm font-weight-normal mb-1">
+                                    <span class="font-weight-bold">{{ comment.content }}</span> 
+                                   
+                                  </h6>
+                                  <h5 class="text-xs text-secondary mb-0 ">
+                                    from {{ comment.author.username }}
+                                  </h5>
+                                  <p class="text-xs text-secondary mb-0 ">
+                                    <i class="fa fa-clock me-1" aria-hidden="true"></i>
+                                    {{ comment.date_posted }}
+                                  </p>
+                                </div>
+                              </div>
+                            </a>
+                          </li>
+                          {% endfor %}
+                          {% if user.is_authenticated %}
+                          <li class="mb-2">
+                            <a class="dropdown-item border-radius-md" href="{{ test.get_add_comment_url }}">
+                              <div class="d-flex py-1">
+                                <div class="d-flex flex-column justify-content-center">
+                                  <h6 class="text-xs text-secondary mb-0">
+                                    <span class="ni ni-fat-add text-lg opacity-10"></span>                                  
+                                  </h6>
+                                </div>
+                              </div>
+                            </a>
+                          </li>
+                          {% endif %}
+                        </ul>
+                      </li>
+                      {% else %}
+                      <div class="nav-link text-body font-weight-bold px-0">
+                      {% if user.is_authenticated %}
+                        <a href="{{ test.get_add_comment_url }}"  class="ni ni-fat-add text-lg opacity-10" aria-hidden="true"></a>
+                      {% endif %}
+                      </div>
+                      {% endif %}
+
+                  </div>
+                </td>
+                <td class="align-middle text-center">
+                  <div class="d-flex align-items-center justify-content-center w-60">
+                  {% if test.get_tag_count > 0  %}
+                    {% for tag in test.get_tag_data %}
+                    <span class="me-2 text-xs font-weight-bold badge badge-sm bg-gradient-info">{{ tag }}</span>
+                    {% endfor %}
+                  {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% autoescape off %}
+<script type="text/javascript">
+    var dom = document.getElementById('chart-container');
+var myChart = echarts.init(dom, null, {
+  renderer: 'canvas',
+  useDirtyRect: false
+});
+var app = {};
+
+var option;
+
+option = {
+  color: ['#00DDFF', '#00DDFF', '#37A2FF', '#FF0087', '#FFBF00'],
+  title: {
+    text: 'Test execution time'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      label: {
+        backgroundColor: '#6a7985'
+      }
+    }
+  },
+  legend: {
+    data: ['Execution time']
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: [
+    {
+      type: 'category',
+      boundaryGap: false,
+      data: [{{ version }}]
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value'
+    }
+  ],
+  series: [
+    {
+      name: 'Execution time',
+      type: 'line',
+      stack: 'Total',
+      smooth: true,
+      lineStyle: {
+        width: 0
+      },
+      showSymbol: false,
+      areaStyle: {
+        opacity: 0.8,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: 'rgb(0, 221, 255)'
+          },
+          {
+            offset: 1,
+            color: 'rgb(77, 119, 255)'
+          }
+        ])
+      },
+      emphasis: {
+        focus: 'series'
+      },
+      data: [{{ execution_time }}]
+    }
+  ]
+};
+{% endautoescape %}
+
+if (option && typeof option === 'object') {
+  myChart.setOption(option);
+}
+
+window.addEventListener('resize', myChart.resize);
+  </script>
+{% endblock %}

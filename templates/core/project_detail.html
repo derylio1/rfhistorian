@@ -2,7 +2,18 @@
 {% load static %}
 
 {% block main %}
-
+<style>
+#chart-container {
+  position: relative;
+  height: 23vh;
+  overflow: hidden;
+}
+#chart-container-2 {
+  position: relative;
+  height: 23vh;
+  overflow: hidden;
+}
+</style>
 <div class="row mt-4">
   <div class="col-xl-3">
     <div class="card h-100">
@@ -34,11 +45,9 @@
     <div class="card z-index-2">
       <div class="card-body p-3">
         <h6>Test execution overview</h6>
-        <div class="bg-gradient-dark border-radius-lg py-2 pe-2 mb-3">
+        <div class="border-radius-lg py-2 pe-2 mb-3">
           <div class="card-body p-3">
-            <div class="chart">
-              <canvas id="chart-line-2" class="chart-canvas" style="display: block; box-sizing: border-box; height: 300px; width: 1263px;" width="1263" height="300"></canvas>
-            </div>
+            <div id="chart-container-2"></div>
           </div>
         </div>
       </div>
@@ -51,9 +60,7 @@
       </div>
       <div class="border-radius-lg py-2 pe-2 mb-3">
         <div class="card-body p-3">
-          <div class="chart">
-            <canvas id="chart-line" class="chart-canvas" style="display: block; box-sizing: border-box; height: 300px; width: 1263px;" width="1263" height="300"></canvas>
-          </div>
+          <div id="chart-container"></div>
         </div>
     </div>
     </div>
@@ -146,232 +153,258 @@
     </div>
   </div>
   <script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
-  <script>
+  <script src="https://fastly.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
+<script>
+  
+{% autoescape off %}
+var execution_chart = document.getElementById('chart-container');
+var myChart = echarts.init(execution_chart, null, {
+  renderer: 'canvas',
+  useDirtyRect: false
+});
+var app = {};
+var option;
+option = {
+  color: ['#80FFA5', '#FF0087', '#FFBF00'],
 
-
-    var ctx2 = document.getElementById("chart-line").getContext("2d");
-
-    var gradientStroke1 = ctx2.createLinearGradient(0, 230, 0, 50);
-
-    gradientStroke1.addColorStop(1, 'rgba(16, 197, 146, 0.2)');
-    gradientStroke1.addColorStop(0.2, 'rgba(72,72,176,0.0)');
-    gradientStroke1.addColorStop(0, 'rgba(203,12,159,0)'); //purple colors
-
-    var gradientStroke2 = ctx2.createLinearGradient(0, 230, 0, 50);
-
-    gradientStroke2.addColorStop(1, 'rgba(20,23,39,0.2)');
-    gradientStroke2.addColorStop(0.2, 'rgba(72,72,176,0.0)');
-    gradientStroke2.addColorStop(0, 'rgba(20,23,39,0)'); //purple colors
-
-    var gradientStroke5 = ctx2.createLinearGradient(0, 230, 0, 50);
-
-    gradientStroke5.addColorStop(1, 'rgba(0, 197, 146, 0.2)');
-    gradientStroke5.addColorStop(0.2, 'rgba(72,72,176,0.0)');
-    gradientStroke5.addColorStop(0, 'rgba(255,255,159,0)'); //purple colors
-
-    new Chart(ctx2, {
-      type: "line",
-      data: {
-        {% autoescape off %}
-        labels: [{{ version }}],
-        {% endautoescape %}
-        datasets: [{
-            label: "Passed",
-            tension: 0.4,
-            borderWidth: 0,
-            pointRadius: 0,
-            borderColor: "#20c997",
-            borderWidth: 3,
-            backgroundColor: gradientStroke1,
-            fill: true,
-            data: [{{ passed }}],
-            maxBarThickness: 6
-          },
-          {
-            label: "Failed",
-            tension: 0.4,
-            borderWidth: 0,
-            pointRadius: 0,
-            borderColor: "#cb0c9f",
-            borderWidth: 3,
-            backgroundColor: gradientStroke2,
-            fill: true,
-            data: [{{ failed }}],
-            maxBarThickness: 6
-          },
-          {
-            label: "skipped",
-            tension: 0.4,
-            borderWidth: 0,
-            pointRadius: 0,
-            borderColor: "#0047AB",
-            borderWidth: 3,
-            backgroundColor: gradientStroke5,
-            fill: true,
-            data: [{{ skipped }}],
-            maxBarThickness: 6
-          },
-        ],
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      label: {
+        backgroundColor: '#6a7985'
+      }
+    }
+  },
+  legend: {
+    data: ['Passed', 'Failed', 'Skipped']
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: [
+    {
+      type: 'category',
+      boundaryGap: false,
+      data: [{{ version }}]
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value'
+    }
+  ],
+  series: [
+    {
+      name: 'Passed',
+      type: 'line',
+      stack: 'Total',
+      smooth: true,
+      lineStyle: {
+        width: 0
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
+      showSymbol: false,
+      areaStyle: {
+        opacity: 0.8,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: 'rgb(128, 255, 165)'
+          },
+          {
+            offset: 1,
+            color: 'rgb(1, 191, 236)'
           }
-        },
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        scales: {
-          y: {
-            grid: {
-              drawBorder: false,
-              display: true,
-              drawOnChartArea: true,
-              drawTicks: false,
-              borderDash: [5, 5]
-            },
-            ticks: {
-              display: true,
-              padding: 10,
-              color: '#b2b9bf',
-              font: {
-                size: 11,
-                family: "Open Sans",
-                style: 'normal',
-                lineHeight: 2
-              },
-            }
-          },
-          x: {
-            grid: {
-              drawBorder: false,
-              display: false,
-              drawOnChartArea: false,
-              drawTicks: false,
-              borderDash: [5, 5]
-            },
-            ticks: {
-              display: true,
-              color: '#b2b9bf',
-              padding: 20,
-              font: {
-                size: 11,
-                family: "Open Sans",
-                style: 'normal',
-                lineHeight: 2
-              },
-            }
-          },
-        },
+        ])
       },
-    });
+      emphasis: {
+        focus: 'series'
+      },
+      data: [{{ passed }}]
+    },
+    {
+      name: 'Failed',
+      type: 'line',
+      stack: 'Total',
+      smooth: true,
+      lineStyle: {
+        width: 0
+      },
+      showSymbol: false,
+      areaStyle: {
+        opacity: 0.8,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        {
+          offset: 0,
+          color: 'rgb(255, 0, 135)'
+        },
+        {
+          offset: 1,
+          color: 'rgb(135, 0, 157)'
+        }
+        ])
+      },
+      emphasis: {
+        focus: 'series'
+      },
+      data: [{{ failed }}]
+    },
+    {
+      name: 'Skipped',
+      type: 'line',
+      stack: 'Total',
+      smooth: true,
+      lineStyle: {
+        width: 0
+      },
+      showSymbol: false,
+      areaStyle: {
+        opacity: 0.8,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        {
+          offset: 0,
+          color: 'rgb(255, 191, 0)'
+        },
+        {
+          offset: 1,
+          color: 'rgb(224, 62, 76)'
+        }
+        ])
+      },
+      emphasis: {
+        focus: 'series'
+      },
+      data: [{{ skipped }}]
+    }
+  ]
+};
 
-    var ctx3 = document.getElementById("chart-line-2").getContext("2d");
 
-    var gradientStroke3 = ctx3.createLinearGradient(0, 230, 0, 50);
+if (option && typeof option === 'object') {
+  myChart.setOption(option);
+}
 
-    gradientStroke3.addColorStop(1, 'rgba(203,12,159,0.2)');
-    gradientStroke3.addColorStop(0.2, 'rgba(72,72,176,0.0)');
-    gradientStroke3.addColorStop(0, 'rgba(203,12,159,0)');
+window.addEventListener('resize', myChart.resize);
+</script>
 
-    var gradientStroke4 = ctx3.createLinearGradient(0, 230, 0, 50);
+<script>
+var dom2 = document.getElementById('chart-container-2');
+var myChart2 = echarts.init(dom2, null, {
+  renderer: 'canvas',
+  useDirtyRect: false
+});
+var app = {};
+var option;
+option = {
+  color: ['#80FFA5', '#FF0087'],
 
-    gradientStroke4.addColorStop(1, 'rgba( 255, 255, 255, 1.0 )');
-    gradientStroke4.addColorStop(0.2, 'rgba(255,255,255,0.0)');
-    gradientStroke4.addColorStop(0, 'rgba(20,23,39,0)');
-    new Chart(ctx3, {
-      type: "line",
-      data: {
-        {% autoescape off %}
-        labels: [{{ version }}],
-        {% endautoescape %}
-        datasets: [{
-            label: "Execution Time",
-            tension: 0.4,
-            borderWidth: 0,
-            pointRadius: 0,
-            borderColor: "#cb0c9f",
-            borderWidth: 3,
-            backgroundColor: gradientStroke3,
-            fill: true,
-            data: [{{ time }}],
-            maxBarThickness: 6
-
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      label: {
+        backgroundColor: '#6a7985'
+      }
+    }
+  },
+  legend: {
+    data: ['Execution time', 'Test total']
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: [
+    {
+      type: 'category',
+      boundaryGap: false,
+      data: [{{ version }}]
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value'
+    }
+  ],
+  series: [
+    {
+      name: 'Execution Time',
+      type: 'line',
+      stack: 'Total',
+      smooth: true,
+      lineStyle: {
+        width: 0
+      },
+      showSymbol: false,
+      areaStyle: {
+        opacity: 0.8,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: 'rgb(128, 255, 165)'
           },
           {
-            label: "No Tests",
-            tension: 0.4,
-            borderWidth: 0,
-            pointRadius: 0,
-            borderColor: "#FFFFFF",
-            borderWidth: 3,
-            backgroundColor: gradientStroke4,
-            fill: true,
-            data: [{{ test_total }}],
-            maxBarThickness: 10
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
+            offset: 1,
+            color: 'rgb(1, 191, 236)'
           }
-        },
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        scales: {
-          y: {
-            grid: {
-              drawBorder: false,
-              display: true,
-              drawOnChartArea: true,
-              drawTicks: false,
-              borderDash: [5, 5]
-            },
-            ticks: {
-              display: true,
-              padding: 10,
-              color: '#b2b9bf',
-              font: {
-                size: 11,
-                family: "Open Sans",
-                style: 'normal',
-                lineHeight: 2
-              },
-            }
-          },
-          x: {
-            grid: {
-              drawBorder: false,
-              display: false,
-              drawOnChartArea: false,
-              drawTicks: false,
-              borderDash: [5, 5]
-            },
-            ticks: {
-              display: true,
-              color: '#b2b9bf',
-              padding: 20,
-              font: {
-                size: 11,
-                family: "Open Sans",
-                style: 'normal',
-                lineHeight: 2
-              },
-            }
-          },
-        },
+        ])
       },
-    });
-  </script>
+      emphasis: {
+        focus: 'series'
+      },
+      data: [{{ time }}]
+    },
+    {
+      name: 'Tests count',
+      type: 'line',
+      stack: 'Total',
+      smooth: true,
+      lineStyle: {
+        width: 0
+      },
+      showSymbol: false,
+      areaStyle: {
+        opacity: 0.8,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        {
+          offset: 0,
+          color: 'rgb(255, 0, 135)'
+        },
+        {
+          offset: 1,
+          color: 'rgb(135, 0, 157)'
+        }
+        ])
+      },
+      emphasis: {
+        focus: 'series'
+      },
+      data: [{{ test_total }}]
+    }
+  ]
+};
 
-  {% endblock %}
+
+if (option && typeof option === 'object') {
+  myChart2.setOption(option);
+}
+
+window.addEventListener('resize', myChart.resize);
+</script>
+{% endautoescape %}
+{% endblock %}

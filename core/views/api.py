@@ -1,5 +1,5 @@
 from datetime import datetime
-from core.models import Project, SingleExecution, SingleTestResult, SingleSuiteResult, Tag
+from core.models import Project, SingleExecution, SingleTestResult, SingleSuiteResult, Tag, TestCaseObject
 from django.urls import path, include
 from rest_framework import routers, serializers, viewsets
 from rest_framework.views import APIView
@@ -57,7 +57,7 @@ class TestResultSerializer(serializers.ModelSerializer):
     error_message = serializers.CharField(allow_blank=True, required=False, allow_null=True)
     class Meta:
         model = SingleTestResult
-        fields = ['suite_execution', 'test_name', 'test_status', 'test_time', 'error_message', 'tag']
+        fields = ['suite_execution', 'test_name', 'test_status', 'execution_time', 'error_message', 'tag']
 
     def create(self,validated_data):
         
@@ -140,8 +140,15 @@ class TesteExecutionAPI(APIView):
                                             context={'project_uuid': project_uuid,
                                                     'suite_execution': suite_execution})
         if serializer.is_valid():
+            test_case_object = None
             suite_execution = SingleExecution.objects.filter(uuid=suite_execution).get()
-            serializer.save(suite_execution=suite_execution)
+            try:
+                test_case_object = TestCaseObject.objects.filter(name=serializer.validated_data["test_name"]).get()
+            except:
+                test_case_object = TestCaseObject.objects.create(name=serializer.validated_data["test_name"],
+                                                                 project=suite_execution.project)
+
+            serializer.save(suite_execution=suite_execution, test=test_case_object)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
