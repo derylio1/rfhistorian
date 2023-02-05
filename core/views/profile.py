@@ -7,8 +7,8 @@ from django.utils.text import slugify
 
 class ProfileList(generic.ListView):
     model =  Profile
-    extra_context = {'page_name': 'Project list', 
-                    'project_page': 'active'}
+    extra_context = {'page_name': 'Profiles list', 
+                    'profile_page': 'active'}
 
 
 class ProfiletDetail(generic.DetailView):

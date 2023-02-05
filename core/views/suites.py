@@ -42,5 +42,10 @@ class SuiteExecutionDetails(generic.DetailView):
         suites = SingleSuiteResult.objects.filter(suite_execution__uuid=self.object.uuid)
         ctx['test_list'] = test_list
         ctx['suites'] = suites
+        breadcrumbs = [{
+                        'name': self.object.project.name,
+                        'url':  self.object.project.get_project_detail_url()}
+                    ]
+        ctx['breadcrumbs'] = breadcrumbs
         return ctx
     
