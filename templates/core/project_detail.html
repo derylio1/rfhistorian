@@ -79,6 +79,7 @@
               <thead>
                 <tr>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Version</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Executed</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Time in seconds</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total test cases</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Tests passed</th>
@@ -88,7 +89,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for suite in suites %}
+              {% for suite in suites reversed  %}
                 <tr>
                   <td>
                     <div class="d-flex px-2">
@@ -99,6 +100,9 @@
                         <a href="{{ suite.get_execution_details_url }}" class="text-sm font-weight-bold mb-0">{{ suite.version }}</a>
                       </div>
                     </div>
+                  </td>
+                  <td>
+                    <span class="text-xs font-weight-bold">{{ suite.date_executed }}</span>
                   </td>
                   <td>
                     <span class="text-xs font-weight-bold">{{ suite.total_time }}</span>

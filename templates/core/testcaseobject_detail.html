@@ -38,6 +38,7 @@
             <thead>
               <tr>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Execution version</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Executed</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Execution time</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Error message</th>
@@ -50,9 +51,16 @@
             {% for test in test_execution %}
               <tr>
                 <td>
-                  <div class="d-flex px-2">
+                  <div class="d-flex align-items-center justify-content-center w-30">
                     <div class="my-auto">
                       <h6 class="mb-0 text-sm">{{ test.test_name }}</h6>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex px-2">
+                    <div class="my-auto">
+                      <span class="mb-0 text-sm">{{ test.suite_execution.date_executed }}</span>
                     </div>
                   </div>
                 </td>
